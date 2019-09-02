@@ -1,6 +1,6 @@
 from db import db
 
-class StoreModel(db.Model)
+class StoreModel(db.Model):
     
     __tablename__ = 'stores'
 
@@ -9,7 +9,7 @@ class StoreModel(db.Model)
 
     items = db.relationship('ItemModel', lazy='dynamic')
 
-    def __init__(self, name, price):
+    def __init__(self, name):
         self.name= name
 
     def json(self):

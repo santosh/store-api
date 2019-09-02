@@ -1,4 +1,4 @@
-# demorial
+# store-api
 
 REST demo in Flask using Flask-RESTful, Flask-JWT, Flask-SQLAlchemy. Tests using Postman.
 
