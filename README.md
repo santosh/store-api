@@ -1,12 +1,20 @@
 # store-api
 
-REST demo in Flask using Flask-RESTful, Flask-JWT, Flask-SQLAlchemy. Tests using Postman.
+A REST API for store, implemented using Flask-RESTful, Flask-JWT, Flask-SQLAlchemy. 
+
+
+## Installation
+
+```
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+```
 
 ## REST Principle
 
  * One PATH, multiple VERBS operating on same resource. Similar to object oriented programming.
  * Sigular vs Plural.
- * REST is stateless. The server only knows about current request, not past or next.
 
 ## API Best Practices
 
