@@ -1,6 +1,6 @@
 # demorial
 
-REST demo in Flask.
+REST demo in Flask using Flask-RESTful, Flask-JWT, Flask-SQLAlchemy. Tests using Postman.
 
 ## REST Principle
 
@@ -8,3 +8,6 @@ REST demo in Flask.
  * Sigular vs Plural.
  * REST is stateless. The server only knows about current request, not past or next.
 
+## API Best Practices
+
+ * When method is already GET, don't name any endpoint like, /getstudent
