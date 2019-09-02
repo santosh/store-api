@@ -37,12 +37,20 @@ class Item(Resource):
             message = "An item with name '{}' already exists.".format(name)
             return {'message': message}, 400
 
-        # After parsing, everything except added argument
-        # will be striped
+        # Parsing strips everything except argument available in self.parser
         data = Item.parser.parse_args()
 
         item = {'name': name, 'price': data['price']}
 
+        try:
+            self.insert(item)
+        except:
+            return {"message": "An error occurred inserting the item."}, 500
+
+        return item, 201
+
+    @classmethod
+    def insert(cls, item):
         connection = sqlite3.connect('db.sqlite')
         cursor = connection.cursor()
 
@@ -51,8 +59,6 @@ class Item(Resource):
 
         connection.commit()
         connection.close()
-
-        return item, 201
 
     def delete(self, name):
         connection = sqlite3.connect('db.sqlite')
