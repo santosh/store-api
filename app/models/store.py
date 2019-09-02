@@ -1,23 +1,22 @@
-import sqlite3
-
 from db import db
 
+class StoreModel(db.Model)
+    
+    __tablename__ = 'stores'
 
-class ItemModel(db.Model):
-
-    __tablename__ = 'items'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String)
-    price = db.Column(db.Float(precision=2))
 
-    store_id = db.Column(db.Integer, db.ForeignKey('stores.id'))
-    store = db.relationship('StoreModel')
+    items = db.relationship('ItemModel', lazy='dynamic')
 
-    def __init__(self, name, price, store_id):
-        self.name, self.price, self.store_id = name, price, store_id
+    def __init__(self, name, price):
+        self.name= name
 
     def json(self):
-        return {'name': self.name, 'price': self.price}
+        return {
+            'name': self.name,
+            'items': [item.json() for item in self.items.all()]
+        }
 
     def save_to_db(self):
         db.session.add(self)
@@ -30,4 +29,3 @@ class ItemModel(db.Model):
     @classmethod
     def find_by_name(cls, name):
         return cls.query.filter_by(name=name).first()
-
