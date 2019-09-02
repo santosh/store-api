@@ -73,6 +73,7 @@ class Item(Resource):
         return {'message': 'Item deleted'}
 
     def put(self, name):
+        # BUG: Updation instead is returning 500 on else section
         data = Item.parser.parse_args()
 
         item = self.find_by_name(name)
@@ -105,6 +106,17 @@ class Item(Resource):
 
 class ItemList(Resource):
     def get(self):
+        connection = sqlite3.connect('db.sqlite')
+        cursor = connection.cursor()
+
+        query = "SELECT * FROM items"
+        result = cursor.execute(query)
+        items = []
+        for row in result:
+            items.append({'name': row[0], 'price': row[1]})
+
+        connection.close()
+
         return {'items': items}
 
 
