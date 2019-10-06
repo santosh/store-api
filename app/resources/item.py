@@ -1,9 +1,6 @@
 from flask_restful import Resource, reqparse
 from flask_jwt_extended import (
     jwt_required,
-    get_jwt_claims,
-    get_jwt_identity,
-    jwt_optional,
     fresh_jwt_required,
 )
 
@@ -19,7 +16,6 @@ class Item(Resource):
         'store_id', type=int, required=True, help="Every item needs a store id."
     )
 
-    @jwt_required
     def get(self, name):
         item = ItemModel.find_by_name(name)
         if item:
@@ -29,8 +25,7 @@ class Item(Resource):
     @fresh_jwt_required
     def post(self, name):
         if ItemModel.find_by_name(name):
-            message = "An item with name '{}' already exists.".format(name)
-            return {'message': message}, 400
+            return {'message': f"An item with name {name} already exists."}, 400
 
         # Parsing strips everything except argument available in self.parser
         data = Item.parser.parse_args()
@@ -46,10 +41,6 @@ class Item(Resource):
 
     @jwt_required
     def delete(self, name):
-        claims = get_jwt_claims()
-        if not claims["is_admin"]:
-            return {"message": "Admin privilege required."}, 401
-
         item = ItemModel.find_by_name(name)
         if item:
             item.delete_from_db()
@@ -72,25 +63,5 @@ class Item(Resource):
 
 
 class ItemList(Resource):
-    @jwt_optional
     def get(self):
-        """Here we get the JWT identity, and then if the user is logged in (we were able to get an identity)
-        we return the entire item list.
-
-        Otherwise we just return the item names.
-
-        This could be done with e.g. see orders that have been placed, but not see details about the orders
-        unless the user has logged in."""
-
-        user_id = get_jwt_identity()
-        items = [item.json() for item in ItemModel.find_all()]
-        if user_id:
-            return {"items": items}, 200
-
-        return (
-            {
-                'items': [item['name'] for item in items],
-                'messages': "More data available if you log in."
-            },
-            200,
-        )
+        return {'items': [item.json() for item in ItemModel.find_all()]}, 200
