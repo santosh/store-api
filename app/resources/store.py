@@ -1,16 +1,8 @@
 from flask_restful import Resource, reqparse
-
 from models.store import StoreModel
 
 
 class Store(Resource):
-    parser = reqparse.RequestParser()
-    parser.add_argument('name',
-        type=float,
-        required=True,
-        help="Each store must have a name."
-    )
-    
     def get(self, name):
         store = StoreModel.find_by_name(name)
         if store:
@@ -26,6 +18,7 @@ class Store(Resource):
             store.save_to_db()
         except:
             return {'message': 'An error occurred while creating the store.'}, 500
+
         return store.json(), 201
 
     def delete(self, name):
@@ -39,5 +32,3 @@ class Store(Resource):
 class StoreList(Resource):
     def get(self):
         return {'stores': [store.json() for store in StoreModel.query.all()]}
-
-

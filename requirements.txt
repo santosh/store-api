@@ -1,7 +1,6 @@
 Flask
-Flask-JWT
+Flask-JWT-Extended
 Flask-RESTful
 Flask-SQLAlchemy
-uwsgi
 pylint
 yapf
