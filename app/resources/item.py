@@ -1,8 +1,5 @@
 from flask_restful import Resource, reqparse
-from flask_jwt_extended import (
-    jwt_required,
-    fresh_jwt_required,
-)
+from flask_jwt_extended import jwt_required, fresh_jwt_required
 
 from models.item import ItemModel
 
@@ -10,22 +7,22 @@ from models.item import ItemModel
 class Item(Resource):
     parser = reqparse.RequestParser()
     parser.add_argument(
-        'price', type=float, required=True, help="This field can't be left blank!"
+        "price", type=float, required=True, help="This field can't be left blank!"
     )
     parser.add_argument(
-        'store_id', type=int, required=True, help="Every item needs a store id."
+        "store_id", type=int, required=True, help="Every item needs a store id."
     )
 
     def get(self, name: str):
         item = ItemModel.find_by_name(name)
         if item:
             return item.json()
-        return {'message': 'Item not found'}, 404
+        return {"message": "Item not found"}, 404
 
     @fresh_jwt_required
     def post(self, name: str):
         if ItemModel.find_by_name(name):
-            return {'message': f"An item with name {name} already exists."}, 400
+            return {"message": f"An item with name {name} already exists."}, 400
 
         # Parsing strips everything except argument available in self.parser
         data = Item.parser.parse_args()
@@ -44,8 +41,8 @@ class Item(Resource):
         item = ItemModel.find_by_name(name)
         if item:
             item.delete_from_db()
-            return {'message': 'Item deleted'}, 200
-        return {'message': 'Item not found'}, 404
+            return {"message": "Item deleted"}, 200
+        return {"message": "Item not found"}, 404
 
     def put(self, name: str):
         data = Item.parser.parse_args()
@@ -55,7 +52,7 @@ class Item(Resource):
         if not item:
             item = ItemModel(name, **data)
         else:
-            item.price = data['price']
+            item.price = data["price"]
 
         item.save_to_db()
 
@@ -64,4 +61,4 @@ class Item(Resource):
 
 class ItemList(Resource):
     def get(self):
-        return {'items': [item.json() for item in ItemModel.find_all()]}, 200
+        return {"items": [item.json() for item in ItemModel.find_all()]}, 200
