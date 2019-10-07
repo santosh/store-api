@@ -20,14 +20,16 @@ class Item(Resource):
         "store_id", type=int, required=True, help=BLANK_ERROR.format("store_id")
     )
 
-    def get(self, name: str):
+    @classmethod
+    def get(cls, name: str):
         item = ItemModel.find_by_name(name)
         if item:
             return item.json()
         return {"message": ITEM_NOT_FOUND}, 404
 
+    @classmethod
     @fresh_jwt_required
-    def post(self, name: str):
+    def post(cls, name: str):
         if ItemModel.find_by_name(name):
             return {"message": ITEM_ALREADY_EXISTS.format(name)}, 400
 
@@ -43,15 +45,17 @@ class Item(Resource):
 
         return item.json(), 201
 
+    @classmethod
     @jwt_required
-    def delete(self, name: str):
+    def delete(cls, name: str):
         item = ItemModel.find_by_name(name)
         if item:
             item.delete_from_db()
             return {"message": ITEM_DELETED}, 200
         return {"message": ITEM_NOT_FOUND}, 404
 
-    def put(self, name: str):
+    @classmethod
+    def put(cls, name: str):
         data = Item.parser.parse_args()
 
         item = ItemModel.find_by_name(name)
@@ -67,5 +71,6 @@ class Item(Resource):
 
 
 class ItemList(Resource):
-    def get(self):
+    @classmethod
+    def get(cls):
         return {"items": [item.json() for item in ItemModel.find_all()]}, 200
