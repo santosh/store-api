@@ -4,25 +4,32 @@ from flask_jwt_extended import jwt_required, fresh_jwt_required
 from models.item import ItemModel
 
 
+BLANK_ERROR = "'{}' can't be left blank!"
+ITEM_NOT_FOUND = "Item not found"
+ITEM_DELETED = "Item deleted"
+ITEM_ALREADY_EXISTS = "An item with name {} already exists."
+INSERT_ERROR = "An error occurred inserting the item."
+
+
 class Item(Resource):
     parser = reqparse.RequestParser()
     parser.add_argument(
-        "price", type=float, required=True, help="This field can't be left blank!"
+        "price", type=float, required=True, help=BLANK_ERROR.format("price")
     )
     parser.add_argument(
-        "store_id", type=int, required=True, help="Every item needs a store id."
+        "store_id", type=int, required=True, help=BLANK_ERROR.format("store_id")
     )
 
     def get(self, name: str):
         item = ItemModel.find_by_name(name)
         if item:
             return item.json()
-        return {"message": "Item not found"}, 404
+        return {"message": ITEM_NOT_FOUND}, 404
 
     @fresh_jwt_required
     def post(self, name: str):
         if ItemModel.find_by_name(name):
-            return {"message": f"An item with name {name} already exists."}, 400
+            return {"message": ITEM_ALREADY_EXISTS.format(name)}, 400
 
         # Parsing strips everything except argument available in self.parser
         data = Item.parser.parse_args()
@@ -32,7 +39,7 @@ class Item(Resource):
         try:
             item.save_to_db()
         except:
-            return {"message": "An error occurred inserting the item."}, 500
+            return {"message": INSERT_ERROR}, 500
 
         return item.json(), 201
 
@@ -41,8 +48,8 @@ class Item(Resource):
         item = ItemModel.find_by_name(name)
         if item:
             item.delete_from_db()
-            return {"message": "Item deleted"}, 200
-        return {"message": "Item not found"}, 404
+            return {"message": ITEM_DELETED}, 200
+        return {"message": ITEM_NOT_FOUND}, 404
 
     def put(self, name: str):
         data = Item.parser.parse_args()
