@@ -1,14 +1,14 @@
 from flask import request
 from flask_restful import Resource
 from flask_jwt_extended import jwt_required, fresh_jwt_required
-from marshmallow import ValidationError
+
 from models.item import ItemModel
 from schemas.item import ItemSchema
 
-ITEM_NOT_FOUND = "Item not found"
-ITEM_DELETED = "Item deleted"
-ITEM_ALREADY_EXISTS = "An item with name {} already exists."
-INSERT_ERROR = "An error occurred inserting the item."
+ITEM_NOT_FOUND = "Item not found."
+ITEM_DELETED = "Item deleted."
+ITEM_ALREADY_EXISTS = "An item with name '{}' already exists."
+INSERT_ERROR = "An error occurred while inserting the item."
 
 item_schema = ItemSchema()
 item_list_schema = ItemSchema(many=True)
@@ -29,7 +29,6 @@ class Item(Resource):
         if ItemModel.find_by_name(name):
             return {"message": ITEM_ALREADY_EXISTS.format(name)}, 400
 
-        # Parsing strips everything except argument available in self.parser
         item_json = request.get_json()
         item_json["name"] = name
 

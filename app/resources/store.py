@@ -1,10 +1,10 @@
-from flask_restful import Resource, reqparse
+from flask_restful import Resource
 from models.store import StoreModel
 from schemas.store import StoreSchema
 
 ERROR_CREATING_STORE = "An error occurred while creating the store."
-STORE_ALREADY_EXISTS = "A store with name {} already exists."
-STORE_NOT_FOUND = "Store not found"
+STORE_ALREADY_EXISTS = "A store with name '{}' already exists."
+STORE_NOT_FOUND = "Store not found."
 STORE_DELETED = "Store deleted."
 
 store_schema = StoreSchema()
@@ -16,7 +16,8 @@ class Store(Resource):
     def get(cls, name: str):
         store = StoreModel.find_by_name(name)
         if store:
-            return store_schema.dump(store)
+            return store_schema.dump(store), 200
+
         return {"message": STORE_NOT_FOUND}, 404
 
     @classmethod
@@ -37,11 +38,12 @@ class Store(Resource):
         store = StoreModel.find_by_name(name)
         if store:
             store.delete_from_db()
+            return {"message": STORE_DELETED}, 200
 
-        return {"message": STORE_DELETED}
+        return {"message": STORE_NOT_FOUND}, 404
 
 
 class StoreList(Resource):
     @classmethod
     def get(cls):
-        return {"stores": store_list_schema.dump(StoreModel.query.all())}
+        return {"stores": store_list_schema.dump(StoreModel.find_all())}, 200
