@@ -19,7 +19,8 @@ class Item(Resource):
     def get(cls, name: str):
         item = ItemModel.find_by_name(name)
         if item:
-            return item_schema.dump(name), 200
+            return item_schema.dump(item), 200
+
         return {"message": ITEM_NOT_FOUND}, 404
 
     @classmethod
@@ -55,11 +56,12 @@ class Item(Resource):
         item_json = request.get_json()
         item = ItemModel.find_by_name(name)
 
-        if not item:
+        if item:
+            item.price = item_json["price"]
+            item.store_id = item_json["store_id"]
+        else:
             item_json["name"] = name
             item = item_schema.load(item_json)
-        else:
-            item.price = item_json["price"]
 
         item.save_to_db()
 

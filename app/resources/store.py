@@ -8,7 +8,7 @@ STORE_NOT_FOUND = "Store not found"
 STORE_DELETED = "Store deleted."
 
 store_schema = StoreSchema()
-store_list_schema = StoreSchema()
+store_list_schema = StoreSchema(many=True)
 
 
 class Store(Resource):
