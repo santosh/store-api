@@ -5,6 +5,7 @@ from flask_jwt_extended import JWTManager
 from ma import ma
 from blacklist import BLACKLIST
 from resources.user import UserRegister, UserLogin, User, TokenRefresh, UserLogout
+from resources.item import Item, ItemList
 
 app = Flask(__name__)
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///db.sqlite"
@@ -35,6 +36,8 @@ def check_if_token_in_blacklist(decrypted_token):
     )  # Here we blacklist particular JWTs that have been created in the past.
 
 
+api.add_resource(Item, "/item/<string:name>")
+api.add_resource(ItemList, "/items")
 api.add_resource(UserRegister, "/register")
 api.add_resource(User, "/user/<int:user_id>")
 api.add_resource(UserLogin, "/login")
