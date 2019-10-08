@@ -1,9 +1,6 @@
-from typing import Dict, List, Union
+from typing import List
 
 from db import db
-from models.item import ItemJSON
-
-StoreJSON = Dict[str, Union[int, str, List[ItemJSON]]]
 
 
 class StoreModel(db.Model):
@@ -14,12 +11,6 @@ class StoreModel(db.Model):
     name = db.Column(db.String(80), unique=True)
 
     items = db.relationship("ItemModel", lazy="dynamic")
-
-    def __init__(self, name: str):
-        self.name = name
-
-    def json(self) -> StoreJSON:
-        return {"name": self.name, "items": [item.json() for item in self.items.all()]}
 
     def save_to_db(self):
         db.session.add(self)
