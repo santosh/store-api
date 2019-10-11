@@ -17,6 +17,9 @@ from schemas.user import UserSchema
 USER_CREATED = "User created successfully."
 USER_ALREADY_EXISTS = "A user with that username already exists."
 USER_NOT_FOUND = "User not found."
+USER_NOT_CONFIRMED = (
+    "You have not confirmed your registration, please check your email <{}>."
+)
 USER_DELETED = "User deleted."
 USER_LOGGED_OUT = "User <id={}> successfully logged out."
 INVALID_CREDENTIALS = "Invalid credentials!"
@@ -69,9 +72,14 @@ class UserLogin(Resource):
         user = UserModel.find_by_username(user_data.username)
 
         if user and safe_str_cmp(user.password, user_data.password):
-            access_token = create_access_token(identity=user.id, fresh=True)
-            refresh_token = create_refresh_token(user.id)
-            return {"access_token": access_token, "refresh_token": refresh_token}, 200
+            if user.activated:
+                access_token = create_access_token(identity=user.id, fresh=True)
+                refresh_token = create_refresh_token(user.id)
+                return (
+                    {"access_token": access_token, "refresh_token": refresh_token},
+                    200,
+                )
+            return {"message": USER_NOT_CONFIRMED.format(user.username)}, 400
 
         return {"message": INVALID_CREDENTIALS}, 401
 

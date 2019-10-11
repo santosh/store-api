@@ -6,4 +6,4 @@ class UserSchema(ma.ModelSchema):
     class Meta:
         model = UserModel
         load_only = ("password",)
-        dump_only = ("id",)
+        dump_only = ("id", "activated")
