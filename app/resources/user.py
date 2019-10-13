@@ -1,3 +1,5 @@
+import traceback
+
 from flask import request, make_response, render_template
 from flask_restful import Resource
 from werkzeug.security import safe_str_cmp
@@ -14,7 +16,7 @@ from blacklist import BLACKLIST
 from models.user import UserModel
 from schemas.user import UserSchema
 
-USER_CREATED = "User created successfully."
+USER_CREATED = "Account created successfully. An email with an activation link has been sent to your email address."
 USER_ALREADY_EXISTS = "A user with that username already exists."
 USER_NOT_FOUND = "User not found."
 USER_NOT_CONFIRMED = (
@@ -22,8 +24,10 @@ USER_NOT_CONFIRMED = (
 )
 USER_DELETED = "User deleted."
 USER_LOGGED_OUT = "User <id={}> successfully logged out."
+EMAIL_ALREADY_EXISTS = "A user with that email already exists."
 INVALID_CREDENTIALS = "Invalid credentials!"
 USER_CONFIRMED = "User confirmed."
+FAILED_TO_CREATE = "Internal Server Error. Failed to create user."
 
 user_schema = UserSchema()
 
@@ -36,9 +40,16 @@ class UserRegister(Resource):
         if UserModel.find_by_username(user.username):
             return {"message": USER_ALREADY_EXISTS}, 400
 
-        user.save_to_db()
+        if UserModel.find_by_email(user.email):
+            return {"message": EMAIL_ALREADY_EXISTS}, 400
 
-        return {"message": USER_CREATED}, 201
+        try:
+            user.save_to_db()
+            user.send_confirmation_email()
+            return {"message": USER_CREATED}, 201
+        except:
+            traceback.print_exc()
+            return {"message": FAILED_TO_CREATE}
 
 
 class User(Resource):
@@ -68,7 +79,7 @@ class User(Resource):
 class UserLogin(Resource):
     @classmethod
     def post(cls):
-        user_data = user_schema.load(request.get_json())
+        user_data = user_schema.load(request.get_json(), partial=("email",))
 
         user = UserModel.find_by_username(user_data.username)
 
@@ -107,7 +118,7 @@ class TokenRefresh(Resource):
 
 class UserConfirm(Resource):
     @classmethod
-    def post(cls, user_id: int):
+    def get(cls, user_id: int):
         user = UserModel.find_by_id(user_id)
         if not user:
             return {"message": USER_NOT_FOUND}, 404
@@ -115,4 +126,6 @@ class UserConfirm(Resource):
         user.activated = True
         user.save_to_db()
         headers = {"Content-Type": "text/html"}
-        return make_response(render_template("base.html", email=user.username), 200, headers)
+        return make_response(
+            render_template("base.html", email=user.username), 200, headers
+        )
