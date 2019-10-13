@@ -13,6 +13,7 @@ from flask_jwt_extended import (
 )
 
 from blacklist import BLACKLIST
+from libs import mail
 from models.user import UserModel
 from schemas.user import UserSchema
 
@@ -47,6 +48,9 @@ class UserRegister(Resource):
             user.save_to_db()
             user.send_confirmation_email()
             return {"message": USER_CREATED}, 201
+        except mail.MailgunException as me:
+            user.delete_from_db()
+            return {"message": str(me)}, 500
         except:
             traceback.print_exc()
             return {"message": FAILED_TO_CREATE}
