@@ -4,7 +4,7 @@ from flask import request, url_for
 import requests
 
 from db import db
-from lib import mail
+from libs import mail
 
 
 class UserModel(db.Model):
