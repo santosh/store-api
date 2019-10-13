@@ -6,6 +6,7 @@ verify_ssl = true
 [dev-packages]
 pylint = "*"
 python-dotenv = "*"
+black = "*"
 
 [packages]
 Flask = "*"
@@ -18,3 +19,6 @@ requests = "*"
 
 [requires]
 python_version = "3.7"
+
+[pipenv]
+allow_prereleases = true
