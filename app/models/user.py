@@ -1,17 +1,10 @@
 import os
 
-from dotenv import load_dotenv
 from flask import request, url_for
 import requests
 
 from db import db
-
-load_dotenv()
-
-MAILGUN_DOMAIN = os.environ["MAILGUN_DOMAIN"]
-MAILGUN_API_KEY = os.environ["MAILGUN_API_KEY"]
-FROM_EMAIL = f"mailgun@{MAILGUN_DOMAIN}"
-FROM_TITLE = "Excited User"
+from lib import mail
 
 
 class UserModel(db.Model):
@@ -38,16 +31,10 @@ class UserModel(db.Model):
     def send_confirmation_email(self) -> requests.Response:
         link = request.url_root[:-1] + url_for("userconfirm", user_id=self.id)
 
-        return requests.post(
-            f"https://api.mailgun.net/v3/{MAILGUN_DOMAIN}/messages",
-            auth=("api", MAILGUN_API_KEY),
-            data={
-                "from": f"{FROM_TITLE} <{FROM_EMAIL}>",
-                "to": ["sntshkmr60@gmail.com"],
-                "subject": "Registration confirmation",
-                "text": f"Please click the link to confirm your registration: {link}",
-            },
-        )
+        subject = "Registration confirmation"
+        text = f"Please click the link to confirm your registration: {link}"
+        html = f'<html>Please click the link to confirm your registration: <a href="{link}">{link}</a></html>'
+        return mail.Mailgun.send_email([self.email], subject, text, html)
 
     def save_to_db(self):
         db.session.add(self)
