@@ -28,3 +28,7 @@ In second part of the course, we'll be incorporating a lot more.
 Marshmallow is accountable for replacement of reqparse. It also helped in
 making our codebase more managable by eleminating need of `__init__` and
 `json` methods in Models.
+
+### Mailgun
+
+Mailgun was used to send confirmation emails. It will be used in other email related tasks.
